@@ -152,15 +152,14 @@ st.set_page_config(page_title="OE Parser", page_icon="✑")
 st.title("OE Parser — Лингвистический парсер древнеанглийского языка")
 st.markdown("Анализирует валентность глаголов в древнеанглийских предложениях.")
 
-if 'oe_input' not in st.session_state:
-    st.session_state.oe_input = ""
+if 'input_text' not in st.session_state:
+    st.session_state.input_text = ""
 
 oe_input = st.text_area(
     "Древнеанглийское предложение (OE)", 
-    value=st.session_state.oe_input,
+    value=st.session_state.input_text,
     height=100,
-    placeholder="Например: Se cyning helpan his þegne",
-    key="oe_input"
+    placeholder="Например: Se cyning helpan his þegne"
 )
 
 col1, col2 = st.columns(2)
@@ -169,7 +168,6 @@ with col1:
 with col2:
     show_subcat = st.checkbox("Показать SUBCAT-список", value=False)
 
-# Кнопка анализа
 if st.button("Анализировать", type="primary"):
     if oe_input:
         result = analyze(oe_input, show_constructive, show_subcat)
@@ -182,7 +180,7 @@ with st.expander("Примеры для тестирования"):
         "Se cyning helpan his þegne",
         "He lōcode þæs cnapan",
         "Hē bād his freondes",
-        "Hē andswarode þām cyninge"
+        "Hē andswarode þām cyninge",
         "Se cyning lōcode his freondes",
         "Se hlāford helpan his freonde",
         "Sēo cwēn bād hire þegnes",
@@ -190,5 +188,5 @@ with st.expander("Примеры для тестирования"):
     ]
     for ex in examples:
         if st.button(ex):
-            st.session_state.oe_input = ex
+            st.session_state.input_text = ex
             st.rerun()
