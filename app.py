@@ -119,7 +119,7 @@ def generate_constructive_model(verb_info, subj, obj, nouns_dict, period='oe'):
             sw = f"the {sw}"
     return f"{r_subj}[{cs}] ({sw}) - {rel} - {r_obj}[{co}] ({ow})"
 
-def analyze(oe_sentence, show_constructive):
+def analyze(oe_sentence, show_constructive, show_subcat):
     if not oe_sentence or not oe_sentence.strip():
         return "Введите предложение"
     tokens = tokenize(oe_sentence)
@@ -131,6 +131,11 @@ def analyze(oe_sentence, show_constructive):
     subj, obj = extract_arguments(tokens, vi, exp_case, nouns)
     out = f"**Токены:** {tokens}\n\n"
     out += f"**Глагол:** {verb} → {vinfo['translation']}\n"
+    
+    if show_subcat:
+        exp_case_str = exp_case if isinstance(exp_case, str) else ', '.join(exp_case)
+        out += f"**SUBCAT-список:** `< NP[subj] (nom), NP[{exp_case_str}] >`\n\n"
+    
     out += f"**Подлежащее:** {subj} ({get_case(subj, nouns)})\n"
     out += f"**Дополнение:** {obj} ({get_case(obj, nouns)})\n"
     if subj and obj:
@@ -143,30 +148,35 @@ def analyze(oe_sentence, show_constructive):
         out += f"\n**PDE модель:** {generate_constructive_model(vinfo, subj, obj, nouns, 'pde')}"
     return out
 
-
 st.set_page_config(page_title="OE Parser", page_icon="✑")
 st.title("OE Parser — Лингвистический парсер древнеанглийского языка")
 st.markdown("Анализирует валентность глаголов в древнеанглийских предложениях.")
 
-# Поле ввода
+if 'oe_input' not in st.session_state:
+    st.session_state.oe_input = ""
+
 oe_input = st.text_area(
     "Древнеанглийское предложение (OE)", 
+    value=st.session_state.oe_input,
     height=100,
-    placeholder="Например: Se cyning helpan his þegne"
+    placeholder="Например: Se cyning helpan his þegne",
+    key="oe_input"
 )
 
-# Опции
-show_constructive = st.checkbox("Показать конструктивные модели", value=True)
+col1, col2 = st.columns(2)
+with col1:
+    show_constructive = st.checkbox("Показать конструктивные модели", value=True)
+with col2:
+    show_subcat = st.checkbox("Показать SUBCAT-список", value=False)
 
 # Кнопка анализа
 if st.button("Анализировать", type="primary"):
     if oe_input:
-        result = analyze(oe_input, show_constructive)
+        result = analyze(oe_input, show_constructive, show_subcat)
         st.markdown(result)
     else:
         st.warning("Введите предложение")
 
-# Примеры
 with st.expander("Примеры для тестирования"):
     examples = [
         "Se cyning helpan his þegne",
