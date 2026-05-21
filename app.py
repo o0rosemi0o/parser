@@ -12,7 +12,14 @@ nouns = {
     "freondes": {"translation": "friend", "case": "genitive", "semantic_role": "АГЕНС"},
     "he": {"translation": "he", "case": "nominative", "semantic_role": "АГЕНС"},
     "hē": {"translation": "he", "case": "nominative", "semantic_role": "АГЕНС"},
-    "his": {"translation": "his", "case": "genitive", "semantic_role": "АГЕНС"}
+    "his": {"translation": "his", "case": "genitive", "semantic_role": "АГЕНС"},
+    "cnapan": {"translation": "boy", "case": "genitive", "semantic_role": "АГЕНС"},
+    "þæs": {"translation": "the", "case": "genitive", "semantic_role": None},
+    "sēo": {"translation": "she", "case": "nominative", "semantic_role": "АГЕНС"},
+    "cwēn": {"translation": "queen", "case": "nominative", "semantic_role": "АГЕНС"},
+    "cwēne": {"translation": "queen", "case": "dative", "semantic_role": "РЕЦИПИЕНТ"},
+    "hire": {"translation": "her", "case": "genitive", "semantic_role": "АГЕНС"},
+    "þegnes": {"translation": "thane's", "case": "genitive", "semantic_role": "АГЕНС"}
 }
 
 verbs = {
@@ -56,19 +63,24 @@ def translate_word(word, nouns_dict):
 def extract_arguments(tokens, verb_index, expected_obj_case, nouns_dict):
     subj = None
     obj = None
+    
     for i in range(verb_index - 1, -1, -1):
         if get_case(tokens[i], nouns_dict) == 'nominative':
             subj = tokens[i]
             break
+    
     for i in range(verb_index + 1, len(tokens)):
         token = tokens[i]
         case = get_case(token, nouns_dict)
         translation = nouns_dict.get(token, {}).get('translation', '')
-        if translation in ['the', 'his', 'her', 'their', 'my', 'your', 'our']:
+        
+        if translation in ['the', 'his', 'her']:
             continue
+        
         if case == expected_obj_case:
             obj = token
             break
+    
     return subj, obj
 
 def generate_pde(verb_info, subj, obj, tokens, nouns_dict):
