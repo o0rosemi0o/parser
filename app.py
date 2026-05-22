@@ -94,10 +94,12 @@ def generate_pde(verb_info, subj, obj, tokens, nouns_dict):
     else:
         s = "[subject not found]"
     
+    has_possessive = 'his' in tokens or 'hire' in tokens
+    
     if obj:
         o = translate_word(obj, nouns_dict)
         if o and o not in ['me', 'he', 'she', 'it', 'we', 'they', 'you', 'i']:
-            if not o.startswith('the ') and o != 'thane':
+            if not has_possessive and not o.startswith('the '):
                 o = f"the {o}"
     else:
         o = "[object not found]"
