@@ -19,7 +19,7 @@ nouns = {
     "cwēn": {"translation": "queen", "case": "nominative", "semantic_role": "АГЕНС"},
     "cwēne": {"translation": "queen", "case": "dative", "semantic_role": "РЕЦИПИЕНТ"},
     "hire": {"translation": "her", "case": "genitive", "semantic_role": "АГЕНС"},
-    "þegnes": {"translation": "thane's", "case": "genitive", "semantic_role": "АГЕНС"}
+    "þegnes": {"translation": "thane", "case": "genitive", "semantic_role": "АГЕНС"}
 }
 
 verbs = {
@@ -85,22 +85,33 @@ def extract_arguments(tokens, verb_index, expected_obj_case, nouns_dict):
 
 def generate_pde(verb_info, subj, obj, tokens, nouns_dict):
     pde_verb = verb_info['translation']
+    
     if subj:
         s = translate_word(subj, nouns_dict)
-        if s and s not in ['me', 'he', 'she', 'it', 'we', 'they', 'you'] and not s.startswith('the '):
-            s = f"the {s}"
+        if s and s not in ['me', 'he', 'she', 'it', 'we', 'they', 'you', 'i']:
+            if not s.startswith('the '):
+                s = f"the {s}"
     else:
         s = "[subject not found]"
+    
     if obj:
         o = translate_word(obj, nouns_dict)
-        if o and o not in ['me', 'he', 'she', 'it', 'we', 'they', 'you'] and not o.startswith('the '):
-            o = o
+        if o and o not in ['me', 'he', 'she', 'it', 'we', 'they', 'you', 'i']:
+            if not o.startswith('the ') and o != 'thane':
+                o = f"the {o}"
     else:
         o = "[object not found]"
-    pos = "his " if 'his' in tokens else ""
+    
+    pos = ""
+    if 'his' in tokens:
+        pos = "his "
+    elif 'hire' in tokens:
+        pos = "her "
+    
     if verb_info.get('requires_preposition'):
         return f"{s.capitalize()} {pde_verb}s {verb_info['preposition']} {pos}{o}"
-    return f"{s.capitalize()} {pde_verb}s {pos}{o}"
+    else:
+        return f"{s.capitalize()} {pde_verb}s {pos}{o}"
 
 def get_semantic_role(word, nouns_dict):
     if word is None:
